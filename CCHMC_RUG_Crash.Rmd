@@ -1,0 +1,405 @@
+---
+title: "CCHMC R Users Group"
+subtitle: "Crash Course in R"
+author: "Chris Wolfe, MS"
+date: "`r Sys.Date()`"
+
+output:
+  xaringan::moon_reader:
+    self_contained: true
+    seal: false
+    nature:
+      scroll: false
+      click: false
+      touch: false
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+options(smart = TRUE)
+knitr::opts_chunk$set(comment = '')
+```
+
+```{r echo = FALSE, message = FALSE}
+library(tidyverse)
+```
+
+
+class: center, middle
+
+# Crash Course in R
+
+### CCHMC R Users Group
+### Cincinnati, OH
+
+#### Chris Wolfe, MS
+#### `r Sys.Date()`
+
+---
+class: center, middle
+
+## **DISCLAIMER**: this is not an attempt to convert you if you are a SAS user (*although we are willing to help should you choose to do so*).
+
+---
+
+# Introduction
+
+
+The purpose of this group is to facilitate interaction among anyone using R within the Academic Health Center with the goal to increase knowledge and collaboration among its members.
+
+
+### Help us get to know you
+
+Who are you? What is your experience with R? What do you hope to learn?
+
+---
+
+# Where can I learn R?
+
+#### There are numerous other books and online programs, but here are some good places to start:
+
+- Coursera (https://www.coursera.org/)
+- R for Data Science (https://r4ds.had.co.nz/)
+- Hands on R Programming (https://rstudio-education.github.io/hopr/)
+- R for Dummies 
+
+Whatever type of learner you are, you are bound to find a suitable option.
+
+---
+# What is R?
+
+R is a language and environment for statistical computing and graphics. 
+
+#### History
+
+- R was developed in the early 1990s at Bell Laboratories, and is based on the statistical programming language "S".
+- In 1995, R was made available as a free software.
+- The first version of R (Version 1.0.0) was realeased.
+- The current version of R is v3.61
+
+#### Functional Programming
+
+- R is a functional programming language--it provides many tools for the creation and manipulation of functions.
+- Data manipulation and analysis with R typically start with small, easy-to-understand building blocks, wcich are combined to form more complex structures to achieve a desired goal
+
+.footnote[https://www.r-project.org/about.html]
+---
+
+# Why use R?
+
+#### Advantages:
+
+- **R is open-source and free to use**
+    + Improvements and fixes by programmers keeps R stable, reliable, has vastly expanded its capabilities
+- **Runs on multiple OS platforms (Mac, Windows, Linux)**
+    + Not true for SAS...point for R!
+- **Supports extensions (packages)**
+    + R is powerful by itself, but its capabilities can be extended by additional software packages
+    + Often times, statistical methods are published in parallel with an associated R package
+- **Large, active user community**
+    + Blogs, Q&A sites, regional and international conferences
+- **Connection with other languages**
+    + Data from other software can be imported and exported (i.e SAS)
+    + SQL database connection
+    
+---
+
+# Code Editing
+
+There are multiple code editors or graphical user interfaces (GUI) to write R code and perform analyses.
+
+#### R Gui
+- This is the standard code editor that accompanies the R install
+- Very basic--includes the console window where code is written
+
+#### R Studio
+- Highlights code to differentiate keywords and variables (easier to read)
+- Automatic bracket and parenthesis matching
+- Code autocompletion
+- Shows other windows beyond console (source, environment, plots/help/files)
+- Capability to create multiple files of different formats (.R, .Rmd, .txt, .pdf, .html, .pptx)
+- Easily manage multiple files and directories by creating "projects"
+
+---
+
+## Data *types* and *structures* in R
+
+**R has 6 basic data types:**
+
+- character: `"a"`, `"RUG"`
+- numeric: `3`, `100.52`
+- integer: `5L` (the `L` tells R to store this as an integer)
+    + factors are a type of integer
+- logical: `TRUE`, `FALSE`
+- complex: `1+8i` (complex numbers with real and imaginary parts)
+
+Elements of the different data types can be combined to form data *structures.*
+
+**R has 5 basic data structures:**
+
+- atomic vector
+- matrix
+- list
+- data frame
+- array
+
+R data structures can be categorized by their dimensionality and whether their contents are homogeneous.
+
+---
+
+# Atomic Vectors
+
+The moste basic data structure in R is the vector. There are two types of vectors: *lists* and *atomic vectors*.  Typically, the term "vector" usually refers to an atomic vector.  Vectors are of a single dimension.
+
+**All elements of an atomic vector must be of the same type**. 
+
+There are a few base functions that R provides that examines the features of vectors (and other data structures):
+
+```{r}
+x <- c("a", "b", "ab", "d") ## THIS CREATES A NUMERIC VECTOR OF THE NUMBERS 1- 5
+                            # c() IS A FUNCTION THAT COMBINES -
+length(x)                   # ARGUEMENTS TO FORM A VECTOR
+str(x)
+
+```
+---
+
+# Lists
+
+Lists are different from atomic vectors because elements can be of **any** type, including lists. You construct lists by using list(). Lists are of one dimension.
+
+```{r}
+x <- list(1:3, "a", c(2.3, 5.9)) 
+str(x)
+
+```
+
+Lists can be recursive vectors, meaning a list can contain other lists. 
+
+```{r}
+x <- list(list(num = 1:3), c(TRUE, FALSE, TRUE)) 
+str(x)
+```
+
+---
+
+# Matrices and arrays
+
+Adding a `dim()` (i.e. dimensionality) attribute to an atomic vector allows it to behave like a multi-dimensional array. A special case of the array is the matrix, which has two dimensions. Matrices can also be created by calling the `matrix()` function.
+
+```{r}
+a <- matrix(1:8, ncol = 4, nrow = 2)
+a
+c <- 1:10
+dim(c) <- c(2, 5)
+c
+
+```
+
+---
+
+# Data Frames
+
+*A data frame is the most common way of storing data in R.* A data frame is a list of equal-length vectors and has a 2-dimensional structure, so it shares properties of both the matrix and the list. In other words, it is a 'rectangular' list.
+
+The `data.frame()` function can be used to create a data frame by hand, although this is typically not useful.
+
+```{r}
+x <- data.frame(id = letters[1:3], x = 1:3, y = 11:13)
+```
+
+#### `$`
+
+The `$` is used to access specific variables of a data frame--R will return a vector of all the values contained in the variable. 
+
+```{r}
+x <- head(mtcars$cyl)
+x
+```
+
+---
+
+# Data Frames
+
+Like `str()` and `length()` there are other useful functions that help you to examine the features of data frames.
+
+- `ncol()` outputs the number of columns
+- `nrow()` outputs the number of columns
+- `glimpse()` allows you to previous your data like `str()` but the output is a bit cleaner
+
+```{r}
+x <- data.frame(id = letters[1:3], x = 1:3, y = 11:13)
+glimpse(x)
+```
+
+---
+
+class: center, middle
+
+# Coding Basics
+
+---
+
+## Calculation
+
+R can do calculations on the fly in the console:
+
+```{r}
+1 / 200 * 30
+(59 + 73 + 2) / 3
+2 + 2^5 - (100*2)
+```
+
+---
+
+## Assigning Values
+
+New R objects can be created using the `<-` or the *assignment operator*.
+
+All R statements where you create objects, or assignment statements, have the same form:
+
+```{r}
+"object_name <- value"
+```
+
+**`=` can also be used to assign values to R objects, but is not recommended.**
+
+Using `=` can cause confusion down the line. 
+
+RStudio’s keyboard shortcut for the assingment operator is: Alt + - (the minus sign).  If you are using a Mac, the shortcut is: option + - (the minus sign).
+
+---
+
+## Object Names
+
+Object names must start with a letter, and can only contain letters, numbers, `_` and `.`. You want your object names to be descriptive, so you’ll need a convention for multiple words. 
+
+```{r eval = FALSE, echo = TRUE}
+"valid_name" 
+"0_not_valid"
+"this.works" 
+"this_also.works_BUT.isconfusingandlong"
+```
+
+You can inspect an object by typing its name (if you hadn't caught on from prevous slides).
+
+---
+
+## Calling Functions
+
+R has a large collection of built-in functions that are called like this:
+
+```{r, eval = FALSE, echo = TRUE}
+"function_name(arg1 = val1, arg2 = val2, ...)"
+```
+
+```{r}
+x <- 1:100
+
+mean(x)
+sd(x)
+summary(x)
+```
+
+---
+## Vectorization
+
+*R is a vector-based language.*
+
+Vectorization allows you to perform sometimes complex operations on a set of values with a single command. Calculations involving vectors occur over the length of the entire vector
+
+```{r}
+x <- 1:10
+x + 2
+```
+
+Vectors can also be added to another vector.
+
+```{r}
+x <- c(5, 1, 4, 5, 9, 0)
+x + 6:11
+```
+
+---
+## Missing Data
+
+Missing data is represented by `NA` in R.
+
+```{r}
+x <- c("a", NA, "c", "d", NA)
+x
+```
+
+The function is.na() indicates the elements of the vectors that represent missing data and returns a *logical* vector.
+
+```{r}
+x <- c("a", NA, "c", "d", NA)
+is.na(x)
+```
+
+---
+
+## Helpful Functions
+
+It is impossible to name all of the helpful functions in R, but here are a few:
+
+- `getwd()` prints the name of your current working director
+- `setwd()` changes your working directory
+- `list.files()` returns a character vector of all files in your working directory
+- `unique()` returns a vector of unique values
+- `duplicated()` returns a logical vector equal to the length of the input
+- `table()` returns an obect of class `table` that shows the number of observations within each level of a factor
+- `paste()` concatenate vectors after converting to character
+- `range()` returns the minimum and maximum 
+- `summary()` returns summary table with minimum and maximum values, mean, and quartiles of a numeric vector
+- `Sys.date()` returns current date
+- `Sys.time()` returns current date-time
+
+---
+
+## User Defined Functions
+
+Functions allow you to automate common tasks in a more powerful and general way than copy-and-pasting. Functions have three major advantages over using copy-and-paste:
+
+- You can give a function a name that makes your code easier to understand
+- As requirements change, you only need to update code in one place, instead of many
+- You eliminate the chance of making incidental mistakes when you copy and paste (i.e. updating a variable name in one place, but not in another).
+
+**General rule of thumb:** You should consider writing a function whenever you’ve copied and pasted a block of code more than twice.
+
+The basic anatomy of a structure looks like this:
+
+```{r}
+myfunction <- function(arg1, arg2, ... ){
+    statements
+    return(object)
+}
+```
+
+---
+
+# Installing Packages
+
+What is an "R package?"
+- a package is a collection of code, help files, datasets and other files that can be incorporated into R and expand its capabilities
+- packages exist for new statistical methods, emojis, data manipulation
+
+There is real power in the fact that any R user can write and contribute code and share their package in an organized manner.
+
+**If you need to do something specific, chances R that a package exists** (or something close to it that you can expand on).
+
+Packages can be installed using the `install.packages()` function.
+
+```{r, eval = FALSE}
+install.packages("tidyverse")
+```
+
+Packages can be loaded using the `library()` function.
+
+```{r, eval = FALSE}
+library(tidyverse)
+```
+

@@ -1,0 +1,135 @@
+---
+title: "CCHMC_RUG `ggplot2`"
+author: "CLW"
+date: "8/30/2019"
+output: 
+    html_document:
+        code_folding: hide
+---
+### Getting the data
+
+The chunk below loads the necessary packages: 
+
+```{r message = FALSE, warning = FALSE}
+
+library(tidyverse)
+library(GSODR)
+library(viridis)
+
+```
+
+The GSODR package includes data from weather stations all over the globe.  You must first specify the latitude and longitude of the location of interest.  The code chunk below downloads weather data collected at the CVG airport for 2018.
+
+```{r message = FALSE, warning = FALSE}
+
+cchmc_stations <- nearest_stations(LAT = 39.140675, LON = -84.501497, distance = 20)
+
+cchmc_weather_all <- get_GSOD(years = 2018, station = cchmc_stations, max_missing = 100)
+
+cvg_weather <- cchmc_weather_all %>% 
+    filter(STN_NAME == "CINCINNATI/NORTHERN KENTUCKY INTL AP") %>% 
+    mutate(temp_F = (TEMP*1.8) + 32)
+
+
+```
+
+### `geom_point()`
+
+The plot below is creates a scatterplot with day of the year on the x-axis and temperature on the y-axis.  The *virids* package contains color scales that are designed to be full spectrum and have proven to be robust to colorblindness.  Adding `scale_color_viridis_c()` adds this color pallete to our plot.  
+
+```{r message = FALSE, warning = FALSE}
+
+ggplot(cvg_weather, aes(YDAY, temp_F)) +
+    geom_point(aes(color = temp_F)) +
+    scale_color_viridis() 
+
+```
+
+## `geom_histogram()`
+
+To visualize the distribution of temperature values for the year (irrespective of time of the year), `geom_histogram()` can be used. This geom visualizes a continuous variable by dividing the x axis into bins and counting the number of observations within them.  The number of bins can be changed by the `bins = ` arguement.
+
+
+```{r message = FALSE, warning = FALSE}
+
+ggplot(cvg_weather) +
+    geom_histogram(aes(temp_F), bins = 50)
+```
+
+### `geom_smooth()` & Layering
+
+A smoothing function can be applied to a scatterplot with `geom_smooth()`.  You can also layer multiple geoms on any given plot.  The code chunk below layers the scatterplot of temperature and adds a smoothed line.  The smoothing function can be specified, but the default method is LOESS (locally weighted smoothing).
+
+```{r message = FALSE, warning = FALSE}
+
+ggplot(cvg_weather, aes(YDAY, temp_F)) +
+    geom_point(aes(color = temp_F)) +
+    geom_smooth() +
+    scale_color_viridis() 
+
+```
+
+### `geom_boxplot()`
+
+The code below creates a boxplot of temperature values for the year.
+
+```{r message = FALSE, warning = FALSE}
+ 
+  ggplot(cvg_weather, aes(y = temp_F)) +
+    geom_boxplot()
+
+```
+
+When MONTH is supplied to `x` in the `aes()` statement, multiple box plots are created showing the distribution of temperatures within each month of the year.
+
+```{r message = FALSE, warning = FALSE}
+
+ggplot(cvg_weather, aes(x = MONTH, y =temp_F, group = MONTH)) +
+    geom_boxplot()
+
+```
+
+## Sumarizing and Visualizing data
+
+You can use `tidyverse` some handy *dplyr* functions to summarize your data and create a plot to visualize it.  The code below calculates the sum of the daily precipitation for each month.  After summarizing the data, it can be plotted to show which month had the highest amount of precipitation using a bar plot.
+
+- `geom_bar()` creates a plot with the height of the bars proportional to the number of cases in each group.
+
+- `geom_col()` creates a plot showing the height of the bars as the values in dataset.
+
+
+```{r message = FALSE, warning = FALSE}
+
+cvg_prcp <- cvg_weather %>% 
+    group_by(MONTH) %>% 
+    summarize(total_prcp = sum(PRCP))
+
+ggplot(cvg_prcp) +
+    geom_col(aes(MONTH, total_prcp))
+
+```
+
+## Faceting
+
+Besides using an aesthetic, another way to visualize data categorical variables is to split the data into *facets*.  Adding `facet_wrap()` or `facet_grid()` to your plot creates a subplot for each level of the variable you specify.
+
+The code below creates a new variable for season and creates a histogram of temperature values for each season.
+
+```{r}
+
+cvg_season <- cvg_weather %>% 
+  mutate(season = case_when(MONTH %in% c("12", "01", "02") ~ "Winter",
+                            MONTH %in% c("03", "04", "05") ~ "Spring",
+                            MONTH %in% c("06", "07", "08") ~ "Summer",
+                            TRUE ~ "Fall"))
+
+
+ggplot(cvg_season, aes(temp_F)) +
+  geom_histogram(aes(fill = season), bins = 90) +
+  facet_wrap(~season)
+  
+  
+
+```
+
+
